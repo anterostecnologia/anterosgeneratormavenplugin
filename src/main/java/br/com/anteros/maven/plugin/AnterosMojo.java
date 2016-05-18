@@ -1,18 +1,4 @@
 package br.com.anteros.maven.plugin;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
  *
@@ -29,6 +15,10 @@ import org.apache.commons.io.FileUtils;
  * limitations under the License.
  */
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -36,32 +26,28 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.thoughtworks.qdox.JavaProjectBuilder;
-import com.thoughtworks.qdox.model.JavaAnnotation;
 import com.thoughtworks.qdox.model.JavaClass;
-import com.thoughtworks.qdox.model.JavaSource;
 
-import br.com.anteros.core.utils.StringUtils;
-import br.com.anteros.persistence.metadata.annotation.Entity;
-import freemarker.core.ParseException;
+import br.com.anteros.generator.AnterosGenerationLog;
+import br.com.anteros.generator.AnterosGeneratorManager;
+import br.com.anteros.generator.config.AnterosGenerationConfig;
 import freemarker.template.Configuration;
-import freemarker.template.MalformedTemplateNameException;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateNotFoundException;
 
 /**
  * 
+ * @author Edson Martins
  *
- * 
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class AnterosMojo extends AbstractMojo {
+@Mojo(name = "generate", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
+public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig, AnterosGenerationLog {
 	/**
 	 * Location of the file.
 	 */
 	@Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
 	private File outputDirectory;
+
+	@Parameter(defaultValue = "${project.name}", required = true)
+	private String projectDisplayName;
 
 	@Parameter(defaultValue = "${basedir}")
 	private String baseDir;
@@ -83,257 +69,203 @@ public class AnterosMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "false")
 	private Boolean generateRepository;
+	
+	@Parameter(defaultValue = "false")
+	private Boolean generateService;
+	
+	@Parameter(defaultValue = "false")
+	private Boolean generateController;
+
+	@Parameter(defaultValue = "false", required = true)
+	private Boolean generateJavaConfiguration;
+
+	@Parameter(required = true)
+	private List<String> packageScanComponentsList = new ArrayList<String>();
+
+	@Parameter(required = true)
+	private String packageScanEntity;
+
+	@Parameter(defaultValue = "")
+	private String propertiesFile;
+
+	@Parameter(defaultValue = "false")
+	private Boolean generateSwaggerConfiguration;
+
+	@Parameter(defaultValue = "false")
+	private Boolean generateJSONDocConfiguration;
+
+	@Parameter(defaultValue = "** INSIRA AQUI O TÍTULO DA SUA API **")
+	private String titleAPI;
+
+	@Parameter(defaultValue = "** INSIRA AQUI A DESCRIÇÃO DA SUA API **")
+	private String descriptionAPI;
+
+	@Parameter(defaultValue = "Versão API 1.0")
+	private String versionAPI;
+
+	@Parameter(defaultValue = "** INSIRA AQUI O TERMO DA LICENÇA **")
+	private String termsOfServiceUrl;
+
+	@Parameter(defaultValue = "email@email.com")
+	private String contactName;
+
+	@Parameter(defaultValue = "** INSIRA AQUI A LICENÇA DA SUA API **")
+	private String licenseAPI;
+
+	@Parameter(defaultValue = "** INSIRA AQUI A URL CONTENDO A LICENÇA DA SUA API **")
+	private String licenseUrl;
+
+	@Parameter(defaultValue = "http://localhost/api")
+	private String basePathJSONDoc;
+
+	@Parameter
+	private List<String> packageScanJSONDocList = new ArrayList<String>();
+
+	@Parameter(defaultValue = "true")
+	private Boolean enabled;
 
 	private Log logger;
 
+	private JavaClass clazz;
+
+	private Configuration configuration;
+
 	public void execute() throws MojoExecutionException {
-		logger = getLog();
-
-		JavaProjectBuilder builder = getBuilder();
-		try {
-			generate(builder);
-		} catch (Exception e) {
-			logger.error(e);
+		if (enabled) {
+			logger = getLog();
+			try {
+				AnterosGeneratorManager.getInstance().generate(this, AnterosMojo.class);
+			} catch (Exception e) {
+				logger.error(e);
+			}
 		}
 	}
 
-	private void generate(JavaProjectBuilder builder) throws TemplateNotFoundException, MalformedTemplateNameException,
-			ParseException, IOException, URISyntaxException, TemplateException {
-		Configuration configuration = new Configuration();
-		configuration.setTemplateLoader(new AnterosTemplateLoader(AnterosMojo.class, "templates"));
-		String packageDirectory = sourceDestination + File.separatorChar
+	public String getPackageDirectory() {
+		return sourceDestination + File.separatorChar
 				+ packageDestination.replace('.', File.separatorChar);
-		FileUtils.forceMkdir(new File(packageDirectory));
-
-		for (JavaSource j : builder.getSources()) {
-			List<JavaClass> classes = j.getClasses();
-			for (JavaClass jc : classes) {
-				if (isGenerateForClass(jc) && isContainsAnnotation(jc, Entity.class)) {
-					if (includeSecurity) {
-						generateSecurityService(configuration, packageDirectory, jc, packageDestination);
-						generateController(configuration, packageDirectory, jc, packageDestination);
-						if (generateRepository) {
-							generateRepository(configuration, packageDirectory, jc, packageDestination);
-						}
-					} else {
-						generateService(configuration, packageDirectory, jc, packageDestination);
-					}
-				}
-			}
-		}
-
 	}
 
-	private void generateService(Configuration configuration, String packageDirectory, JavaClass clazz,
-			String packageName) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException,
-			IOException, TemplateException {
-		logger.info("Generating class service interface for " + clazz.getName());
-		FileUtils.forceMkdir(new File(packageDirectory, "service"));
-		FileUtils.forceMkdir(new File(packageDirectory, "service" + File.separatorChar + "impl"));
-		Template templateServiceInterface = configuration.getTemplate("serviceInterface.ftl");
-
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-		String serviceName = clazz.getName() + "Service";
-		String entityType = clazz.getName();
-		String fullEntityName = clazz.getCanonicalName();
-		Writer out = null;
-
-		Map<String, Object> dataModel = new HashMap<String, Object>();
-		File fileService = new File(packageDirectory + "/service/" + clazz.getName() + "Service.java");
-		if (!fileService.exists()) {
-			out = new FileWriter(fileService);
-			dataModel.put("packageName", packageDestination + ".service");
-			dataModel.put("serviceName", serviceName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("time", sdf.format(new Date()));
-			templateServiceInterface.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
-
-		Template templateServiceImpl = configuration.getTemplate("serviceImplementation.ftl");
-		dataModel = new HashMap<String, Object>();
-		File fileServiceImpl = new File(packageDirectory + "/service/impl/" + clazz.getName() + "ServiceImpl.java");
-		if (!fileServiceImpl.exists()) {
-			out = new FileWriter(fileServiceImpl);
-			dataModel.put("packageName", packageDestination + ".service.impl");
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("importService", packageDestination + ".service." + clazz.getName() + "Service");
-			dataModel.put("serviceNameImpl", serviceName + "Impl");
-			dataModel.put("interfaceService", serviceName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("time", sdf.format(new Date()));
-			templateServiceImpl.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
+	public JavaClass getClazz() {
+		return clazz;
+	}
+	
+	public void setClazz(JavaClass clazz) {
+		this.clazz = clazz;
 	}
 
-	private void generateSecurityService(Configuration configuration, String packageDirectory, JavaClass clazz,
-			String packageName) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException,
-			IOException, TemplateException {
-		logger.info("Generating class security service interface for " + clazz.getName());
-		FileUtils.forceMkdir(new File(packageDirectory, "service"));
-		FileUtils.forceMkdir(new File(packageDirectory, "service" + File.separatorChar + "impl"));
-		Template templateServiceInterface = configuration.getTemplate("securityServiceInterface.ftl");
-
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-		String serviceName = clazz.getName() + "Service";
-		String entityType = clazz.getName();
-		String fullEntityName = clazz.getCanonicalName();
-		Writer out = null;
-
-		Map<String, Object> dataModel = new HashMap<String, Object>();
-		File fileService = new File(packageDirectory + "/service/" + clazz.getName() + "Service.java");
-		if (!fileService.exists()) {
-			out = new FileWriter(fileService);
-			dataModel.put("packageName", packageDestination + ".service");
-			dataModel.put("resourceName", clazz.getName());
-			dataModel.put("resourceDescription", clazz.getName());
-			dataModel.put("serviceName", serviceName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("time", sdf.format(new Date()));
-			templateServiceInterface.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
-
-		Template templateServiceImpl = configuration.getTemplate("securityServiceImplementation.ftl");
-		dataModel = new HashMap<String, Object>();
-		File fileServiceImpl = new File(packageDirectory + "/service/impl/" + clazz.getName() + "ServiceImpl.java");
-		if (!fileServiceImpl.exists()) {
-			out = new FileWriter(fileServiceImpl);
-			dataModel.put("packageName", packageDestination + ".service.impl");
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("importService", packageDestination + ".service." + clazz.getName() + "Service");
-			dataModel.put("service", StringUtils.uncapitalize(serviceName));
-			dataModel.put("serviceNameImpl", serviceName + "Impl");
-			dataModel.put("interfaceService", serviceName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("time", sdf.format(new Date()));
-			templateServiceImpl.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
+	public Configuration getConfiguration() {
+		return configuration;
 	}
 
-	private void generateController(Configuration configuration, String packageDirectory, JavaClass clazz,
-			String packageName) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException,
-			IOException, TemplateException {
-		logger.info("Generating class controller for " + clazz.getName());
-		FileUtils.forceMkdir(new File(packageDirectory, "controller"));
-		Template templateServiceInterface = configuration.getTemplate("restController.ftl");
-
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-		String serviceName = clazz.getName() + "Service";
-		String entityType = clazz.getName();
-		String fullEntityName = clazz.getCanonicalName();
-		Writer out = null;
-
-		Map<String, Object> dataModel = new HashMap<String, Object>();
-		File fileService = new File(packageDirectory + "/controller/" + clazz.getName() + "Controller.java");
-		if (!fileService.exists()) {
-			out = new FileWriter(fileService);
-			dataModel.put("packageName", packageDestination + ".controller");
-			dataModel.put("serviceName", serviceName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("importService", packageDestination + ".service." + clazz.getName() + "Service");
-			dataModel.put("time", sdf.format(new Date()));
-			dataModel.put("requestMapping", "/" + StringUtils.uncapitalize(clazz.getName()));
-			dataModel.put("controller", clazz.getName() + "Controller");
-			dataModel.put("interfaceService", serviceName);
-			dataModel.put("service", StringUtils.uncapitalize(serviceName));
-			templateServiceInterface.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
+	public String getPackageDestination() {
+		return packageDestination;
 	}
 
-	private void generateRepository(Configuration configuration, String packageDirectory, JavaClass clazz,
-			String packageName) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException,
-			IOException, TemplateException {
-		logger.info("Generating class repository interface for " + clazz.getName());
-		FileUtils.forceMkdir(new File(packageDirectory, "repository"));
-		FileUtils.forceMkdir(new File(packageDirectory, "repository" + File.separatorChar + "impl"));
-		Template templateServiceInterface = configuration.getTemplate("repositoryInterface.ftl");
-
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-		String repositoryName = clazz.getName() + "Repository";
-		String entityType = clazz.getName();
-		String fullEntityName = clazz.getCanonicalName();
-		Writer out = null;
-
-		Map<String, Object> dataModel = new HashMap<String, Object>();
-		File fileService = new File(packageDirectory + "/repository/" + clazz.getName() + "Repository.java");
-		if (!fileService.exists()) {
-			out = new FileWriter(fileService);
-			dataModel.put("packageName", packageDestination + ".repository");
-			dataModel.put("repositoryName", repositoryName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("time", sdf.format(new Date()));
-			templateServiceInterface.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
-
-		Template templateServiceImpl = configuration.getTemplate("repositoryImplementation.ftl");
-		dataModel = new HashMap<String, Object>();
-		File fileServiceImpl = new File(
-				packageDirectory + "/repository/impl/" + clazz.getName() + "RepositoryImpl.java");
-		if (!fileServiceImpl.exists()) {
-			out = new FileWriter(fileServiceImpl);
-			dataModel.put("packageName", packageDestination + ".repository.impl");
-			dataModel.put("importEntity", fullEntityName);
-			dataModel.put("importRepository", packageDestination + ".repository." + clazz.getName() + "Repository");
-			dataModel.put("repository", StringUtils.uncapitalize(repositoryName));
-			dataModel.put("repositoryNameImpl", repositoryName + "Impl");
-			dataModel.put("repositoryName", repositoryName);
-			dataModel.put("entityType", entityType);
-			dataModel.put("time", sdf.format(new Date()));
-			templateServiceImpl.process(dataModel, out);
-			out.flush();
-			out.close();
-		}
+	public String getProjectDisplayName() {
+		return projectDisplayName;
 	}
 
-	private boolean isContainsAnnotation(JavaClass jc, Class<?> ac) {
-		for (JavaAnnotation ja : jc.getAnnotations()) {
-			if (ja.getType().toString().equals(ac.getName())) {
-				return true;
-			}
-		}
-		return false;
+	public boolean isGenerateSwaggerConfiguration() {
+		return generateSwaggerConfiguration;
 	}
 
-	private JavaProjectBuilder getBuilder() {
-		JavaProjectBuilder docBuilder = new JavaProjectBuilder();
-		for (String r : sourcesToScanEntities) {
-			docBuilder.addSourceTree(new File(r));
-		}
-
-		return docBuilder;
+	public boolean isGenerateJSONDocConfiguration() {
+		return generateJSONDocConfiguration;
 	}
 
-	private boolean isGenerateForClass(JavaClass sourceJavaClass) {
-		String classPackage = sourceJavaClass.getPackageName();
-		if (packageBaseList != null) {
-			for (String source : packageBaseList) {
-				if (classPackage.startsWith(source)) {
-					return true;
-				}
-			}
-			return false;
-		} else {
-			return true;
-		}
+	public String getPropertiesFile() {
+		return propertiesFile;
+	}
+
+	public String getPackageScanEntity() {
+		return packageScanEntity;
+	}
+
+	public String getTitleAPI() {
+		return titleAPI;
+	}
+
+	public String getDescriptionAPI() {
+		return descriptionAPI;
+	}
+
+	public String getTermsOfServiceUrl() {
+		return termsOfServiceUrl;
+	}
+
+	public String getContactName() {
+		return contactName;
+	}
+
+	public String getLicenseAPI() {
+		return licenseAPI;
+	}
+
+	public String getVersionAPI() {
+		return versionAPI;
+	}
+
+	public String getLicenseUrl() {
+		return licenseUrl;
+	}
+
+	public List<String> getPackageScanJSONDocList() {
+		return packageScanJSONDocList;
+	}
+
+	public String getBasePathJSONDoc() {
+		return basePathJSONDoc;
+	}
+
+	public List<String> getPackageScanComponentsList() {
+		return packageScanComponentsList;
+	}
+
+	public String getSourceDestination() {
+		return sourceDestination;
+	}
+
+	public List<String> getSourcesToScanEntities() {
+		return sourcesToScanEntities;
+	}
+
+	public boolean isIncludeSecurity() {
+		return includeSecurity;
+	}
+
+	public List<String> getPackageBaseList() {
+		return packageBaseList;
+	}
+
+	public boolean isGenerateRepository() {
+		return generateRepository;
+	}
+
+	public boolean isGenerateJavaConfiguration() {
+		return generateJavaConfiguration;
+	}
+
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
+	}
+
+	public void log(String msg) {
+		logger.info(msg);		
+	}
+
+	public AnterosGenerationLog getGenerationLog() {
+		return this;
+	}
+
+	@Override
+	public boolean isGenerateService() {
+		return generateService;
+	}
+
+	@Override
+	public boolean isGenerateController() {
+		return generateController;
 	}
 
 }

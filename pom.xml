@@ -4,7 +4,7 @@
 
 	<groupId>br.com.anteros</groupId>
 	<artifactId>Anteros-Generator-Maven-Plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>Anteros Generator Maven Plugin</name>
@@ -102,7 +102,23 @@
 			<artifactId>Anteros-Persistence-Core</artifactId>
 			<version>[1.0.0,)</version>
 		</dependency>
+		<dependency>
+			<groupId>br.com.anteros</groupId>
+			<artifactId>Anteros-Generator-Core</artifactId>
+			<version>[1.0.0,)</version>
+		</dependency>
 	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>resources/templates</directory>
+				<includes>
+					<include>**/*.ftl</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 
 	<profiles>
 		<profile>

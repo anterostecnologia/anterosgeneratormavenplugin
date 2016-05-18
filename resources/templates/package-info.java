@@ -1,8 +1,0 @@
-/**
- * 
- */
-/**
- * @author edson
- *
- */
-package templates;
