@@ -16,6 +16,8 @@ package br.com.anteros.maven.plugin;
  */
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 import com.thoughtworks.qdox.model.JavaClass;
 
@@ -38,7 +42,7 @@ import freemarker.template.Configuration;
  * @author Edson Martins
  *
  */
-@Mojo(name = "generate", defaultPhase=LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresDependencyCollection = ResolutionScope.COMPILE)
 public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig, AnterosGenerationLog {
 	/**
 	 * Location of the file.
@@ -46,17 +50,14 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
 	private File outputDirectory;
 
+	@Parameter(defaultValue = "${project}")
+	private MavenProject project = null;
+
 	@Parameter(defaultValue = "${project.name}", required = true)
 	private String projectDisplayName;
 
 	@Parameter(defaultValue = "${basedir}")
 	private String baseDir;
-
-	@Parameter(required = true)
-	private List<String> sourcesToScanEntities;
-
-	@Parameter(required = true)
-	private List<String> packageBaseList;
 
 	@Parameter(defaultValue = "${basedir}/src/main/java", required = true)
 	private String sourceDestination;
@@ -69,10 +70,10 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(defaultValue = "false")
 	private Boolean generateRepository;
-	
+
 	@Parameter(defaultValue = "false")
 	private Boolean generateService;
-	
+
 	@Parameter(defaultValue = "false")
 	private Boolean generateController;
 
@@ -124,6 +125,9 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Parameter(defaultValue = "true")
 	private Boolean enabled;
 
+	@Parameter(defaultValue = "${project.compileClasspathElements}")
+	private List<String> classpathElements;
+
 	private Log logger;
 
 	private JavaClass clazz;
@@ -131,6 +135,7 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	private Configuration configuration;
 
 	public void execute() throws MojoExecutionException {
+		
 		if (enabled) {
 			logger = getLog();
 			try {
@@ -141,15 +146,27 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 		}
 	}
 
+	protected List<URL> createClassPath() {
+		List<URL> list = new ArrayList<URL>();
+		if (classpathElements != null) {
+			for (String cpel : classpathElements) {
+				try {
+					list.add(new File(cpel).toURI().toURL());
+				} catch (MalformedURLException mue) {
+				}
+			}
+		}
+		return list;
+	}
+
 	public String getPackageDirectory() {
-		return sourceDestination + File.separatorChar
-				+ packageDestination.replace('.', File.separatorChar);
+		return sourceDestination + File.separatorChar + packageDestination.replace('.', File.separatorChar);
 	}
 
 	public JavaClass getClazz() {
 		return clazz;
 	}
-	
+
 	public void setClazz(JavaClass clazz) {
 		this.clazz = clazz;
 	}
@@ -226,16 +243,8 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 		return sourceDestination;
 	}
 
-	public List<String> getSourcesToScanEntities() {
-		return sourcesToScanEntities;
-	}
-
 	public boolean isIncludeSecurity() {
 		return includeSecurity;
-	}
-
-	public List<String> getPackageBaseList() {
-		return packageBaseList;
 	}
 
 	public boolean isGenerateRepository() {
@@ -251,7 +260,7 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	}
 
 	public void log(String msg) {
-		logger.info(msg);		
+		logger.info(msg);
 	}
 
 	public AnterosGenerationLog getGenerationLog() {
@@ -266,6 +275,11 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Override
 	public boolean isGenerateController() {
 		return generateController;
+	}
+
+	@Override
+	public List<URL> getClassPathURLs() {
+		return createClassPath();
 	}
 
 }
