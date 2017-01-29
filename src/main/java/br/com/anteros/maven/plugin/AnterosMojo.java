@@ -94,6 +94,9 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(defaultValue = "false")
 	private Boolean generateJSONDocConfiguration;
+	
+	@Parameter(defaultValue = "false")
+	private Boolean generateForAbstractClass;
 
 	@Parameter(defaultValue = "** INSIRA AQUI O TÍTULO DA SUA API **")
 	private String titleAPI;
@@ -189,6 +192,10 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	public boolean isGenerateJSONDocConfiguration() {
 		return generateJSONDocConfiguration;
+	}
+	
+	public boolean isGenerateForAbstractClass() {
+		return generateForAbstractClass;
 	}
 
 	public String getPropertiesFile() {

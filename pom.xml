@@ -4,7 +4,7 @@
 
 	<groupId>br.com.anteros</groupId>
 	<artifactId>Anteros-Generator-Maven-Plugin</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>Anteros Generator Maven Plugin</name>
