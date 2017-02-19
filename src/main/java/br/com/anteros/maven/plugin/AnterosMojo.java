@@ -203,6 +203,18 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	}
 
 	public String getPackageScanEntity() {
+		if (packageScanEntity!=null){
+			if (includeSecurity){
+				if (packageScanEntity.indexOf(';')>=0) {
+					packageScanEntity = "br.com.anteros.security.model*;"+packageScanEntity;
+				} else if (packageScanEntity.indexOf(',')>=0) {
+					packageScanEntity = "br.com.anteros.security.model*,"+packageScanEntity;
+				} else if (packageScanEntity.indexOf(' ')>=0) {
+					packageScanEntity = "br.com.anteros.security.model* "+packageScanEntity;
+				}
+			}
+		}
+		
 		return packageScanEntity;
 	}
 
