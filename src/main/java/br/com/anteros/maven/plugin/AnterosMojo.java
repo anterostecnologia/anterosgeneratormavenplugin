@@ -211,7 +211,7 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 				if (result.indexOf(';')>=0) {
 					result = ANTEROS_SECURITY_MODEL+";"+packageScanEntity;
 				} else if (result.indexOf(',')>=0) {
-					result = ANTEROS_SECURITY_MODEL+","+packageScanEntity;I
+					result = ANTEROS_SECURITY_MODEL+","+packageScanEntity;
 				} else if (result.indexOf(' ')>=0) {
 					result = ANTEROS_SECURITY_MODEL+" "+packageScanEntity;
 				} else {
