@@ -44,6 +44,8 @@ import freemarker.template.Configuration;
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresDependencyCollection = ResolutionScope.COMPILE)
 public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig, AnterosGenerationLog {
+	public static final String ANTEROS_SECURITY_MODEL = "br.com.anteros.security.model*";
+
 	/**
 	 * Location of the file.
 	 */
@@ -203,19 +205,22 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	}
 
 	public String getPackageScanEntity() {
+		String result = packageScanEntity;
 		if (packageScanEntity!=null){
 			if (includeSecurity){
-				if (packageScanEntity.indexOf(';')>=0) {
-					packageScanEntity = "br.com.anteros.security.model*;"+packageScanEntity;
-				} else if (packageScanEntity.indexOf(',')>=0) {
-					packageScanEntity = "br.com.anteros.security.model*,"+packageScanEntity;
-				} else if (packageScanEntity.indexOf(' ')>=0) {
-					packageScanEntity = "br.com.anteros.security.model* "+packageScanEntity;
+				if (result.indexOf(';')>=0) {
+					result = ANTEROS_SECURITY_MODEL+";"+packageScanEntity;
+				} else if (result.indexOf(',')>=0) {
+					result = ANTEROS_SECURITY_MODEL+","+packageScanEntity;I
+				} else if (result.indexOf(' ')>=0) {
+					result = ANTEROS_SECURITY_MODEL+" "+packageScanEntity;
+				} else {
+					result = ANTEROS_SECURITY_MODEL+";"+packageScanEntity;
 				}
 			}
 		}
 		
-		return packageScanEntity;
+		return result;
 	}
 
 	public String getTitleAPI() {
