@@ -100,30 +100,6 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Parameter(defaultValue = "false")
 	private Boolean generateForAbstractClass;
 
-	@Parameter(defaultValue = "** INSIRA AQUI O TÍTULO DA SUA API **")
-	private String titleAPI;
-
-	@Parameter(defaultValue = "** INSIRA AQUI A DESCRIÇÃO DA SUA API **")
-	private String descriptionAPI;
-
-	@Parameter(defaultValue = "Versão API 1.0")
-	private String versionAPI;
-
-	@Parameter(defaultValue = "** INSIRA AQUI O TERMO DA LICENÇA **")
-	private String termsOfServiceUrl;
-
-	@Parameter(defaultValue = "email@email.com")
-	private String contactName;
-
-	@Parameter(defaultValue = "** INSIRA AQUI A LICENÇA DA SUA API **")
-	private String licenseAPI;
-
-	@Parameter(defaultValue = "** INSIRA AQUI A URL CONTENDO A LICENÇA DA SUA API **")
-	private String licenseUrl;
-
-	@Parameter(defaultValue = "http://localhost/api")
-	private String basePathJSONDoc;
-
 	@Parameter
 	private List<String> packageScanJSONDocList = new ArrayList<String>();
 
@@ -188,14 +164,6 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 		return projectDisplayName;
 	}
 
-	public boolean isGenerateSwaggerConfiguration() {
-		return generateSwaggerConfiguration;
-	}
-
-	public boolean isGenerateJSONDocConfiguration() {
-		return generateJSONDocConfiguration;
-	}
-	
 	public boolean isGenerateForAbstractClass() {
 		return generateForAbstractClass;
 	}
@@ -223,40 +191,9 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 		return result;
 	}
 
-	public String getTitleAPI() {
-		return titleAPI;
-	}
-
-	public String getDescriptionAPI() {
-		return descriptionAPI;
-	}
-
-	public String getTermsOfServiceUrl() {
-		return termsOfServiceUrl;
-	}
-
-	public String getContactName() {
-		return contactName;
-	}
-
-	public String getLicenseAPI() {
-		return licenseAPI;
-	}
-
-	public String getVersionAPI() {
-		return versionAPI;
-	}
-
-	public String getLicenseUrl() {
-		return licenseUrl;
-	}
 
 	public List<String> getPackageScanJSONDocList() {
 		return packageScanJSONDocList;
-	}
-
-	public String getBasePathJSONDoc() {
-		return basePathJSONDoc;
 	}
 
 	public List<String> getPackageScanComponentsList() {
