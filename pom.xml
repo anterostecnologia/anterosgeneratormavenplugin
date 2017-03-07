@@ -218,6 +218,7 @@
 							</executions>
 							<configuration>
 								<additionalparam>-Xdoclint:none</additionalparam>
+								<stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
 							</configuration>
 						</plugin>
 					</plugins>
@@ -318,6 +319,11 @@
 							</executions>
 							<configuration>
 								<additionalparam>-Xdoclint:none</additionalparam>
+								<stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
+								<includeDependencySources>true</includeDependencySources>
+								<dependencySourceIncludes>
+									<dependencySourceInclude>br.com.anteros:Anteros-Generator-Core</dependencySourceInclude>
+								</dependencySourceIncludes>
 							</configuration>
 						</plugin>
 					</plugins>
