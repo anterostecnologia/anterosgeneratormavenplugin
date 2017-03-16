@@ -86,22 +86,13 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	private List<String> packageScanComponentsList = new ArrayList<String>();
 
 	@Parameter(required = true)
-	private String packageScanEntity;
+	private List<String> packageScanEntitiesList = new ArrayList<String>();
 
 	@Parameter(defaultValue = "")
 	private String propertiesFile;
 
 	@Parameter(defaultValue = "false")
-	private Boolean generateSwaggerConfiguration;
-
-	@Parameter(defaultValue = "false")
-	private Boolean generateJSONDocConfiguration;
-	
-	@Parameter(defaultValue = "false")
 	private Boolean generateForAbstractClass;
-
-	@Parameter
-	private List<String> packageScanJSONDocList = new ArrayList<String>();
 
 	@Parameter(defaultValue = "true")
 	private Boolean enabled;
@@ -116,7 +107,7 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	private Configuration configuration;
 
 	public void execute() throws MojoExecutionException {
-		
+
 		if (enabled) {
 			logger = getLog();
 			try {
@@ -173,27 +164,26 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	}
 
 	public String getPackageScanEntity() {
-		String result = packageScanEntity;
-		if (packageScanEntity!=null){
-			if (includeSecurity){
-				if (result.indexOf(';')>=0) {
-					result = ANTEROS_SECURITY_MODEL+";"+packageScanEntity;
-				} else if (result.indexOf(',')>=0) {
-					result = ANTEROS_SECURITY_MODEL+","+packageScanEntity;
-				} else if (result.indexOf(' ')>=0) {
-					result = ANTEROS_SECURITY_MODEL+" "+packageScanEntity;
-				} else {
-					result = ANTEROS_SECURITY_MODEL+";"+packageScanEntity;
+		StringBuilder result = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
+
+		if (packageScanEntitiesList.size() > 0) {
+			boolean boAppendDelimiter = false;
+			for (String packageScanEntity : packageScanEntitiesList) {
+				if (boAppendDelimiter)
+					sb.append(";");
+				sb.append(packageScanEntity);
+			}
+			result.append(sb);
+
+			if (includeSecurity) {
+				if (result.toString().length() > 0) {
+					result.append(";");
 				}
+				result.append(ANTEROS_SECURITY_MODEL);
 			}
 		}
-		
-		return result;
-	}
-
-
-	public List<String> getPackageScanJSONDocList() {
-		return packageScanJSONDocList;
+		return result.toString();
 	}
 
 	public List<String> getPackageScanComponentsList() {
