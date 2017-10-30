@@ -78,6 +78,9 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(defaultValue = "false")
 	private Boolean generateController;
+	
+	@Parameter(defaultValue = "true")
+	private boolean generateExceptionHandler;
 
 	@Parameter(defaultValue = "false", required = true)
 	private Boolean generateJavaConfiguration;
@@ -231,6 +234,11 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Override
 	public List<URL> getClassPathURLs() {
 		return createClassPath();
+	}
+
+	@Override
+	public boolean isGenerateExceptionHandler() {
+		return generateExceptionHandler;
 	}
 
 }
