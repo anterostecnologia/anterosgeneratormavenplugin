@@ -44,7 +44,8 @@ import freemarker.template.Configuration;
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresDependencyCollection = ResolutionScope.COMPILE)
 public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig, AnterosGenerationLog {
-	public static final String ANTEROS_SECURITY_MODEL = "br.com.anteros.security.model*";
+	public static final String ANTEROS_SECURITY_MODEL_SQL = "br.com.anteros.security.store.sql.domain*";
+	public static final String ANTEROS_SECURITY_MODEL_NO_SQL = "br.com.anteros.security.store.mongo.domain*";
 
 	/**
 	 * Location of the file.
@@ -78,7 +79,7 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(defaultValue = "false")
 	private Boolean generateController;
-	
+
 	@Parameter(defaultValue = "true")
 	private boolean generateExceptionHandler;
 
@@ -102,6 +103,33 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(defaultValue = "${project.compileClasspathElements}")
 	private List<String> classpathElements;
+
+	@Parameter(defaultValue = "sql")
+	private String persistenceDatabase;
+
+	@Parameter(defaultValue = "sql")
+	private String securityPersistenceDatabase;
+
+	@Parameter
+	private String remoteEndPointCheckToken;
+
+	@Parameter
+	private String securedPattern;
+	
+	@Parameter(defaultValue="v1")
+	private String resourceVersion;
+
+	@Parameter
+	private String resourceID;
+
+	@Parameter
+	private Boolean useAnterosOAuth2Server;
+	
+	@Parameter(defaultValue = "")
+	private String clientID;
+	
+	@Parameter(defaultValue = "")
+	private String clientSecret;
 
 	private Log logger;
 
@@ -183,7 +211,11 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 				if (result.toString().length() > 0) {
 					result.append(";");
 				}
-				result.append(ANTEROS_SECURITY_MODEL);
+				if ("sql".equals(getSecurityPersistenceDatabase())) {
+					result.append(ANTEROS_SECURITY_MODEL_SQL);
+				} else {
+					result.append(ANTEROS_SECURITY_MODEL_NO_SQL);
+				}
 			}
 		}
 		return result.toString();
@@ -239,6 +271,51 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Override
 	public boolean isGenerateExceptionHandler() {
 		return generateExceptionHandler;
+	}
+
+	@Override
+	public String getPersistenceDatabase() {
+		return persistenceDatabase;
+	}
+
+	@Override
+	public String getSecurityPersistenceDatabase() {
+		return securityPersistenceDatabase;
+	}
+
+	@Override
+	public String remoteEndPointCheckToken() {
+		return remoteEndPointCheckToken;
+	}
+
+	@Override
+	public String getResourceID() {
+		return resourceID;
+	}
+
+	@Override
+	public String getSecuredPattern() {
+		return securedPattern;
+	}
+
+	@Override
+	public Boolean isUseAnterosOAuth2Server() {
+		return useAnterosOAuth2Server;
+	}
+
+	@Override
+	public String getClientID() {
+		return clientID;
+	}
+
+	@Override
+	public String getClientSecret() {
+		return clientSecret;
+	}
+
+	@Override
+	public String getResourceVersion() {
+		return resourceVersion;
 	}
 
 }
