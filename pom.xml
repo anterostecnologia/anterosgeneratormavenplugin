@@ -8,19 +8,20 @@
 	<version>2.0.0</version>
 	<packaging>maven-plugin</packaging>
 
-	<name>Anteros Generator Maven Plugin</name>
+
+
 	<properties>
-		<java.versao>1.7</java.versao>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<bintray.subject>edson</bintray.subject>
 		<bintray.repo>maven</bintray.repo>
 		<bintray.package>anteros-generator-maven-plugin</bintray.package>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>
 
+	<name>Anteros Generator Maven Plugin</name>
 	<description>
-         The plugin maven of Anteros.
+         Anteros Generator Core for Java.
     </description>
 	<organization>
 		<name>Anteros Tecnologia</name>
@@ -77,11 +78,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>com.thoughtworks.qdox</groupId>
 			<artifactId>qdox</artifactId>
-			<version>2.0-M9</version>
+			<version>2.0-M10</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -109,25 +110,25 @@
 			<version>[2.0.0,)</version>
 		</dependency>
 	</dependencies>
-
+	
 	<build>
 		<resources>
 			<resource>
-				<directory>resources/templates</directory>
+				<directory>src/main/resources/templates</directory>
 				<includes>
 					<include>**/*.ftl</include>
 				</includes>
 			</resource>
 		</resources>
 	</build>
-
+	
 	<profiles>
 		<profile>
 			<id>maven-central</id>
 			<build>
 				<resources>
 					<resource>
-						<directory>resources/templates</directory>
+						<directory>src/main/resources/templates</directory>
 						<includes>
 							<include>**/*.ftl</include>
 						</includes>
@@ -148,7 +149,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -160,35 +160,46 @@
 						</executions>
 					</plugin>
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-plugin-plugin</artifactId>
-						<version>3.2</version>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.3</version>
+						<extensions>true</extensions>
 						<configuration>
-							<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
-							<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+							<serverId>nexus-releases</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
 						</configuration>
-						<executions>
-							<execution>
-								<id>mojo-descriptor</id>
-								<goals>
-									<goal>descriptor</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>help-goal</id>
-								<goals>
-									<goal>helpmojo</goal>
-								</goals>
-							</execution>
-						</executions>
 					</plugin>
 				</plugins>
 				<pluginManagement>
 					<plugins>
+					<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
+					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+				</configuration>
+				<executions>
+					<execution>
+						<id>mojo-descriptor</id>
+						<goals>
+							<goal>descriptor</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>help-goal</id>
+						<goals>
+							<goal>helpmojo</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-compiler-plugin</artifactId>
-							<version>3.2</version>
+							<version>3.1</version>
 							<configuration>
 								<target>${java.versao}</target>
 								<source>${java.versao}</source>
@@ -197,7 +208,6 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-source-plugin</artifactId>
-							<version>3.2</version>
 							<executions>
 								<execution>
 									<id>attach-sources</id>
@@ -210,7 +220,6 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
-							<version>3.2</version>
 							<executions>
 								<execution>
 									<id>attach-javadocs</id>
@@ -222,7 +231,6 @@
 							</executions>
 							<configuration>
 								<doclint>none</doclint>
-								<stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
 							</configuration>
 						</plugin>
 					</plugins>
@@ -255,43 +263,41 @@
 			<build>
 				<resources>
 					<resource>
-						<directory>resources/templates</directory>
+						<directory>src/main/resources/templates</directory>
 						<includes>
 							<include>**/*.ftl</include>
 						</includes>
 					</resource>
 				</resources>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-plugin-plugin</artifactId>
-						<version>3.2</version>
-						<configuration>
-							<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
-							<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-						</configuration>
-						<executions>
-							<execution>
-								<id>mojo-descriptor</id>
-								<goals>
-									<goal>descriptor</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>help-goal</id>
-								<goals>
-									<goal>helpmojo</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
 				<pluginManagement>
 					<plugins>
+					<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
+					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+				</configuration>
+				<executions>
+					<execution>
+						<id>mojo-descriptor</id>
+						<goals>
+							<goal>descriptor</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>help-goal</id>
+						<goals>
+							<goal>helpmojo</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-compiler-plugin</artifactId>
-							<version>3.2</version>
+							<version>3.1</version>
 							<configuration>
 								<target>${java.versao}</target>
 								<source>${java.versao}</source>
@@ -300,7 +306,6 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-source-plugin</artifactId>
-							<version>3.2</version>
 							<executions>
 								<execution>
 									<id>attach-sources</id>
@@ -313,7 +318,6 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
-							<version>3.2</version>
 							<executions>
 								<execution>
 									<id>attach-javadocs</id>
@@ -325,11 +329,6 @@
 							</executions>
 							<configuration>
 								<doclint>none</doclint>
-								<stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
-								<includeDependencySources>true</includeDependencySources>
-								<dependencySourceIncludes>
-									<dependencySourceInclude>br.com.anteros:Anteros-Generator-Core</dependencySourceInclude>
-								</dependencySourceIncludes>
 							</configuration>
 						</plugin>
 					</plugins>
