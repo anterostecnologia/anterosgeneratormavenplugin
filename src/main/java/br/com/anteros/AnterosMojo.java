@@ -73,6 +73,12 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(required = true)
 	private List<String> packageScanEntitiesList = new ArrayList<String>();
+	
+	@Parameter(required = false)
+	private List<String> includeOnlyTheseEntitiesList = new ArrayList<String>();
+	
+	@Parameter(required = false)
+	private List<String> excludeEntitiesList = new ArrayList<String>();
 
 	@Parameter(defaultValue = "")
 	private String propertiesFile;
@@ -298,6 +304,16 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Override
 	public String getResourceVersion() {
 		return resourceVersion;
+	}
+
+	@Override
+	public List<String> getIncludeOnlyTheseEntitiesList() {
+		return includeOnlyTheseEntitiesList;
+	}
+
+	@Override
+	public List<String> getExcludeEntitiesList() {
+		return excludeEntitiesList;
 	}
 
 }
