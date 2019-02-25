@@ -5,7 +5,7 @@
 
 	<groupId>br.com.anteros</groupId>
 	<artifactId>Anteros-Generator-Maven-Plugin</artifactId>
-	<version>2.0.1</version>
+	<version>2.0.2</version>
 	<packaging>maven-plugin</packaging>
 
 
@@ -110,7 +110,7 @@
 			<version>[2.0.0,)</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<resources>
 			<resource>
@@ -121,7 +121,7 @@
 			</resource>
 		</resources>
 	</build>
-	
+
 	<profiles>
 		<profile>
 			<id>maven-central</id>
@@ -173,29 +173,29 @@
 				</plugins>
 				<pluginManagement>
 					<plugins>
-					<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.5</version>
-				<configuration>
-					<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
-					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-				</configuration>
-				<executions>
-					<execution>
-						<id>mojo-descriptor</id>
-						<goals>
-							<goal>descriptor</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>help-goal</id>
-						<goals>
-							<goal>helpmojo</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-plugin-plugin</artifactId>
+							<version>3.5</version>
+							<configuration>
+								<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
+								<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+							</configuration>
+							<executions>
+								<execution>
+									<id>mojo-descriptor</id>
+									<goals>
+										<goal>descriptor</goal>
+									</goals>
+								</execution>
+								<execution>
+									<id>help-goal</id>
+									<goals>
+										<goal>helpmojo</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-compiler-plugin</artifactId>
@@ -271,29 +271,29 @@
 				</resources>
 				<pluginManagement>
 					<plugins>
-					<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.5</version>
-				<configuration>
-					<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
-					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-				</configuration>
-				<executions>
-					<execution>
-						<id>mojo-descriptor</id>
-						<goals>
-							<goal>descriptor</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>help-goal</id>
-						<goals>
-							<goal>helpmojo</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-plugin-plugin</artifactId>
+							<version>3.5</version>
+							<configuration>
+								<goalPrefix>Anteros-Generator-Maven-Plugin</goalPrefix>
+								<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+							</configuration>
+							<executions>
+								<execution>
+									<id>mojo-descriptor</id>
+									<goals>
+										<goal>descriptor</goal>
+									</goals>
+								</execution>
+								<execution>
+									<id>help-goal</id>
+									<goals>
+										<goal>helpmojo</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-compiler-plugin</artifactId>
