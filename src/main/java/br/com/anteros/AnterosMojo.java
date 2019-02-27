@@ -186,12 +186,14 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 		StringBuilder result = new StringBuilder();
 		StringBuilder sb = new StringBuilder();
 
-		if (packageScanEntitiesList.size() > 0) {
-			boolean boAppendDelimiter = false;
-			for (String packageScanEntity : packageScanEntitiesList) {
+		if (packageScanEntitiesList.size() > 0) {	
+			for (int i = 0; i < packageScanEntitiesList.size(); i++) {
+				boolean boAppendDelimiter = (i == packageScanEntitiesList.size() - 1) ? false : true;
+				
+				sb.append(packageScanEntitiesList.get(i));
+
 				if (boAppendDelimiter)
 					sb.append(";");
-				sb.append(packageScanEntity);
 			}
 			result.append(sb);
 
