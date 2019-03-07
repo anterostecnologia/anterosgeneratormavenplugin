@@ -28,7 +28,7 @@ import freemarker.template.Configuration;
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, requiresDependencyCollection = ResolutionScope.COMPILE)
 public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig, AnterosGenerationLog {
-	public static final String ANTEROS_SECURITY_MODEL_SQL = "br.com.anteros.security.store.sql.domain*";
+	public static final String ANTEROS_SECURITY_MODEL_SQL = "br.com.anteros.security.model*";	
 	public static final String ANTEROS_SECURITY_MODEL_NO_SQL = "br.com.anteros.security.store.mongo.domain*";
 
 	/**
