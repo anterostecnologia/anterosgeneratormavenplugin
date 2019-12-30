@@ -1,0 +1,8 @@
+source:jar javadoc:jar install -P local
+
+source:jar javadoc:jar deploy -P maven-central
+
+PATH=/usr/local/MacGPG2/bin
+
+
+source:jar javadoc:jar deploy -P bintray
