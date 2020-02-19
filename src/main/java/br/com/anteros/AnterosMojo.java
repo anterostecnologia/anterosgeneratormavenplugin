@@ -52,6 +52,9 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	@Parameter(defaultValue = "true")
 	private Boolean includeSecurity;
+	
+	@Parameter(defaultValue = "true")
+	private Boolean includeOAuth2;
 
 	@Parameter(defaultValue = "false")
 	private Boolean generateRepository;
@@ -316,6 +319,11 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	@Override
 	public List<String> getExcludeEntitiesList() {
 		return excludeEntitiesList;
+	}
+
+	@Override
+	public boolean isIncludeOAuth2() {
+		return includeOAuth2;
 	}
 
 }
