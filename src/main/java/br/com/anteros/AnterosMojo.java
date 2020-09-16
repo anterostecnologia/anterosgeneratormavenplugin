@@ -82,6 +82,9 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 	
 	@Parameter(required = false)
 	private List<String> excludeEntitiesList = new ArrayList<String>();
+	
+	@Parameter(required = true)
+	private List<String> packageReplaceNamesList = new ArrayList<String>();
 
 	@Parameter(defaultValue = "")
 	private String propertiesFile;
@@ -216,6 +219,10 @@ public class AnterosMojo extends AbstractMojo implements AnterosGenerationConfig
 
 	public List<String> getPackageScanComponentsList() {
 		return packageScanComponentsList;
+	}
+	
+	public List<String> getPackageReplaceNamesList() {
+		return packageReplaceNamesList;
 	}
 
 	public String getSourceDestination() {
